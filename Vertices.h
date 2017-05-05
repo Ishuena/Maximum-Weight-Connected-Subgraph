@@ -15,12 +15,16 @@ namespace mwcs {
         Vertices();
         void add_vertex(Vertex v);
 
-        unsigned long size();
+        const unsigned long size() const;
+        const int get_weight() const;
+        const std::string string() const;
+        const bool has_vertex(Vertex v) const;
 
-        Vertex get_vertex(int i);
+        const Vertex get_vertex(int i) const;
 
     private:
         std::vector<Vertex> vertices;
+        int weight;
         //std::unordered_map<uint32_t, Vertex> vertices;
         //int number_of_vertices;
         //uint32_t ids;

@@ -9,19 +9,42 @@ namespace mwcs {
 
     mwcs::Vertices::Vertices() {
         //ids = 0;
+        weight = INT_MIN;
     }
 
     void Vertices::add_vertex(Vertex v) {
-        //ids += 1;
-        //v.set_id(ids);
-        vertices.push_back(v);
+        // Hack : oplossen in programma!
+        if (!has_vertex(v)) {
+            vertices.push_back(v);
+            if (weight == INT_MIN) weight = 0;
+            weight += v.get_weight();
+        }
     }
 
-    unsigned long Vertices::size() {
+    const unsigned long Vertices::size() const {
         return vertices.size();
     }
 
-    Vertex Vertices::get_vertex(int i) {
+    const Vertex Vertices::get_vertex(int i) const {
         return vertices.at(i);
+    }
+
+    const bool Vertices::has_vertex(Vertex v) const {
+        for (auto it : vertices) {
+            if (v.get_name().compare(it.get_name()) == 0) return true;
+        }
+        return false;
+    }
+
+    const int Vertices::get_weight() const {
+        return weight;
+    }
+
+    const std::string Vertices::string() const {
+        std::string result = "";
+        for (auto it : vertices) {
+            result += it.get_name() + " ";
+        }
+        return result;
     }
 }

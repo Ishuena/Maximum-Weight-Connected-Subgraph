@@ -71,23 +71,27 @@ void add_vertices_2(mwcs::Vertices *v) {
     v->add_vertex(f);
 }
 
-void print_table(std::unordered_map<std::VertexColorPair, int> table) {
+void print_table(std::unordered_map<std::VertexColorPair, mwcs::Vertices> table) {
     for (auto it : table) {
         std::VertexColorPair current = it.first;
         mwcs::Vertex v = it.first.first;
         mwcs::ColorSet c = it.first.second;
-        std::cout << "Vertex: " << v.get_name() << " colors: " << c.string() << " weight: " << it.second << std::endl;
+        std::cout << "Vertex: " << v.get_name() << " colors: " << c.string() << " weight: " << it.second.get_weight() << " graph: " << it.second.string()<< std::endl;
+        std::cout << "              ";
+        print_vertices(it.second);
+        std::cout<< std::endl;
     }
 }
 
 void print_vertices(mwcs::Vertices v) {
-    std::cout << "Nr of vertices is " << v.size() << std::endl;
+    //std::cout << "Nr of vertices is " << v.size() << std::endl;
     for (int i = 0; i < v.size(); i++) {
         mwcs::Vertex vertex = v.get_vertex(i);
-        std::cout << "Vertex " << vertex.get_name() << ", weight " << vertex.get_weight() << ", color "<< vertex.get_color() << ", neighbours: ";
-        print_neighbours(vertex);
-        std::cout << std::endl;
+        //std::cout << "Vertex " << vertex.get_name() << ", weight " << vertex.get_weight() << ", color "<< vertex.get_color() << ", neighbours: ";
+        //print_neighbours(vertex);
+        //std::cout << vertex.get_name() << " ";
     }
+    std::cout << std::endl;
 }
 
 void print_neighbours(mwcs::Vertex v) {
@@ -102,15 +106,17 @@ void print_subsets(std::vector<mwcs::ColorSet> subset) {
     }
 }
 
-void init_table(std::unordered_map<std::VertexColorPair, int> *table, mwcs::Vertices vertices) {
+void init_table(std::unordered_map<std::VertexColorPair, mwcs::Vertices> *table, mwcs::Vertices vertices) {
     for (int i = 0; i < vertices.size(); i++) {
         mwcs::Vertex current = vertices.get_vertex(i);
         mwcs::ColorSet c;
         c.add(current.get_color());
         std::VertexColorPair tkey = {current, c};
+        mwcs::Vertices v;
+        v.add_vertex(current);
         /* Check which method is better */
         //table->emplace(tkey, current.get_weight());
-        std::pair<std::VertexColorPair, int> entry (tkey, current.get_weight());
+        std::pair<std::VertexColorPair, mwcs::Vertices> entry (tkey, v);
         table->insert(entry);
     }
 }
@@ -150,8 +156,8 @@ std::vector<mwcs::ColorSet> create_powerset(mwcs::ColorSet set) {
     return result;
 }
 
-std::unordered_map<std::VertexColorPair, int> find_max(std::unordered_map<std::VertexColorPair, int> table, mwcs::Vertex vertex, mwcs::Vertex neighbor, mwcs::ColorSet set) {
-    int result = INT_MIN;
+std::unordered_map<std::VertexColorPair, mwcs::Vertices> find_max(std::unordered_map<std::VertexColorPair, mwcs::Vertices> table, mwcs::Vertex vertex, mwcs::Vertex neighbor, mwcs::ColorSet set) {
+    mwcs::Vertices result;
     std::vector<mwcs::ColorSet> powerset = create_powerset(set);
     std::VertexColorPair best_pair = {vertex, vertex.get_color()};
     //print_subsets(powerset);
@@ -160,24 +166,37 @@ std::unordered_map<std::VertexColorPair, int> find_max(std::unordered_map<std::V
     for (auto it : powerset) {
         //std::cout << it.string() << std::endl;
 
-        std::unordered_map<std::VertexColorPair, int>::const_iterator vertex_pair = table.find({vertex, it});
+        std::unordered_map<std::VertexColorPair, mwcs::Vertices>::const_iterator vertex_pair = table.find({vertex, it});
         //std::VertexColorPair best = vertex_pair->first;
         // als subset van powerset staat in table met vertex
         if (vertex_pair != table.end()) {
+            //for (int i = 0; i < vertex.get_number_of_neighbors(); i ++) {
+            //    std::cout << vertex.get_neighbor(i).get_name() << " ";
+            //    result.add_vertex(vertex.get_neighbor(i));
+            //}
             // als complement subset van powerset staat in table met neighbor
             mwcs::ColorSet temp = set.copy();
             temp.remove(it);
             //std::cout << "it: " << it.string() << std::endl;
             //std::cout << "temp: " << temp.string() << std::endl;
-            std::unordered_map<std::VertexColorPair, int>::const_iterator neighbor_pair = table.find({neighbor, temp});
+            std::unordered_map<std::VertexColorPair, mwcs::Vertices>::const_iterator neighbor_pair = table.find({neighbor, temp});
             if (neighbor_pair != table.end()) {
-                int candidate = vertex_pair->second + neighbor_pair->second;
-                //std::cout << candidate << std::endl;
-                if (candidate > result) {
-                    std::cout << "cand: " << candidate << " result: " << result << std::endl;
-                    result = candidate;
-                    //best_pair = vertex_pair->first;
-                    best_pair = {vertex, set};
+                if (!neighbor_pair->second.has_vertex(vertex)) {
+                    std::cout << neighbor_pair->second.string() << std::endl;
+                    int candidate = vertex_pair->second.get_weight() + neighbor_pair->second.get_weight();
+                    //std::cout << candidate << std::endl;
+                    if (candidate > result.get_weight()) {
+                        result.add_vertex(vertex);
+                        std::cout << "cand: " << candidate << " result: " << result.get_weight() << std::endl;
+                        result.add_vertex(neighbor);
+                        for (int i = 0; i < neighbor_pair->second.size(); i ++) {
+                            result.add_vertex(neighbor_pair->second.get_vertex(i));
+                        }
+                        //best_pair = vertex_pair->first;
+                        best_pair = {vertex, set};
+                        std::cout << "set: " << set.string() << " with curr weight: " << result.get_weight() << " path: " << result.string()
+                                  << std::endl;
+                    }
                 }
             }
         }
@@ -186,11 +205,16 @@ std::unordered_map<std::VertexColorPair, int> find_max(std::unordered_map<std::V
     }
     std::cout << best_pair.first.get_name() << " | " << best_pair.second.string() << std::endl;
 
-    std::pair<std::VertexColorPair, int> entry (best_pair, result);
-    //table->insert(entry);
+    std::pair<std::VertexColorPair, mwcs::Vertices> entry (best_pair, result);
     //table->emplace(best_pair, result);
-    table[best_pair] = result;
-    std::cout << "result for vertex: " << vertex.get_name() << " neighbor: " << neighbor.get_name() << " is: " << result << std::endl;
+
+    std::unordered_map<std::VertexColorPair, mwcs::Vertices>::const_iterator current_pair = table.find({best_pair.first, best_pair.second});
+    if (current_pair != table.end()) {
+        table[best_pair] = result;
+    } else {
+        table.insert(entry);
+    }
+    std::cout << "result for vertex: " << vertex.get_name() << " neighbor: " << neighbor.get_name() << " is: " << result.get_weight() << std::endl;
     std::cout << "----------------- START TABLE ---------------------" << std::endl;
     print_table(table);
     std::cout << "----------------- END TABLE ---------------------" << std::endl;
@@ -201,14 +225,14 @@ std::unordered_map<std::VertexColorPair, int> find_max(std::unordered_map<std::V
 int main() {
     unsigned long number_of_colors = 3;
     mwcs::Vertices vertices;
-    add_vertices(&vertices);
+    add_vertices_2(&vertices);
 
     mwcs::ColorSet colors;
     colors.add(1);
     colors.add(2);
     colors.add(3);
     //colors.add(4);
-    std::unordered_map<std::VertexColorPair, int> table;
+    std::unordered_map<std::VertexColorPair, mwcs::Vertices> table;
 
     init_table(&table, vertices);
 
