@@ -19,7 +19,6 @@ namespace mwcs {
         void remove(int color);
         void remove(ColorSet set);
         int size();
-        ColorSet difference(ColorSet other);
         std::vector<mwcs::ColorSet> create_subsets(int size);
         std::vector<mwcs::ColorSet> create_powerset();
         const bool has_color(int color) const;
@@ -34,6 +33,5 @@ namespace mwcs {
         void get_subsets(int size, int start, ColorSet current, std::vector<mwcs::ColorSet> *result);
     };
 }
-
 
 #endif //BASIC_ALGO_COLORSET_H

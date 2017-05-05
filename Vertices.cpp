@@ -8,7 +8,6 @@
 namespace mwcs {
 
     mwcs::Vertices::Vertices() {
-        //ids = 0;
         weight = INT_MIN;
     }
 

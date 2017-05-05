@@ -25,9 +25,6 @@ namespace mwcs {
     private:
         std::vector<Vertex> vertices;
         int weight;
-        //std::unordered_map<uint32_t, Vertex> vertices;
-        //int number_of_vertices;
-        //uint32_t ids;
     };
 }
 #endif //BASIC_ALGO_VERTICES_H

@@ -18,7 +18,6 @@ mwcs::ColorSet::ColorSet(int number_of_colors) {
     }
 }
 
-
 void mwcs::ColorSet::add(int color) {
     colors = (colors | (1 << (color - 1)));
     number_of_colors += 1;
@@ -41,12 +40,6 @@ void mwcs::ColorSet::remove(ColorSet set) {
     }
 
     number_of_colors = count;
-
-    //for (int i = 0; i < set.size(); i++) {
-    //    if (set.has_color(i)) {
-    //        remove(i);
-    //    }
-    //}
 }
 
 int mwcs::ColorSet::size() {
@@ -77,19 +70,12 @@ mwcs::ColorSet mwcs::ColorSet::copy() {
 
 void mwcs::ColorSet::get_subsets(int size, int start, ColorSet current, std::vector<mwcs::ColorSet> *result) {
     if (current.number_of_colors == size) {
-        //std::cout << "noc: " << current.number_of_colors << " size: " << size << " colors: " << current.string() << std::endl;
-
         result->push_back(current.copy());
-        //std::cout << string() << std::endl;
-        //std::cout << std::endl;
         return;
     }
     if (start >= 32) return;
 
-    //std::cout << "start: " << start << std::endl;
-
     current.add(start);
-    //start += 1;
     get_subsets(size, get_next(start + 1), current, result);
     current.remove(start);
     get_subsets(size, get_next(start + 1), current, result);
@@ -98,8 +84,6 @@ void mwcs::ColorSet::get_subsets(int size, int start, ColorSet current, std::vec
 std::vector<mwcs::ColorSet> mwcs::ColorSet::create_subsets(int size) {
     std::vector<mwcs::ColorSet> result;
     mwcs::ColorSet current;
-
-    //std::cout << get_next(0) << std::endl;
     get_subsets(size, get_next(0), current, &result);
     return result;
 }
@@ -127,11 +111,5 @@ const std::string mwcs::ColorSet::string() const {
             result += std::to_string(i) + " ";
         }
     }
-    return result;
-}
-
-mwcs::ColorSet mwcs::ColorSet::difference(mwcs::ColorSet other) {
-    ColorSet result;
-    result.colors = colors ^ other.colors;
     return result;
 }
