@@ -150,17 +150,6 @@ std::vector<mwcs::ColorSet> create_powerset(mwcs::ColorSet set) {
     return result;
 }
 
-/*
-std::vector<mwcs::ColorSet> create_powerset(std::vector<mwcs::ColorSet> sets) {
-    for (auto it : sets) {
-        std::cout << "NEXT SUBSET ---------------------------------------------" << std::endl;
-        //std::cout << " it size: " << it.string() << it.size() << std::endl;
-        std::vector<mwcs::ColorSet> subset_q = create_powerset(it);
-        print_subsets(subset_q);
-    }
-}
-*/
-
 std::unordered_map<std::VertexColorPair, int> find_max(std::unordered_map<std::VertexColorPair, int> table, mwcs::Vertex vertex, mwcs::Vertex neighbor, mwcs::ColorSet set) {
     int result = INT_MIN;
     std::vector<mwcs::ColorSet> powerset = create_powerset(set);
